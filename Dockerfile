@@ -1,22 +1,16 @@
-# Dockerfile
+# Dockerfile (Final Version with Build Step)
 
-# Use an official Node.js runtime as a parent image
 FROM node:18
-
-# Set the working directory in the container
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
-
-# Install any needed packages
 RUN npm install
 
-# Bundle app source
 COPY . .
 
-# Make port 3000 available to the world outside this container
-EXPOSE 3000
+# --- THIS IS THE CRITICAL FIX ---
+# Run the build script from your package.json to create the /dist folder
+RUN npm run build
 
-# Define the command to run your app
+EXPOSE 3000
 CMD ["npm", "start"]

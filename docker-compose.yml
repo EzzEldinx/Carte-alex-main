@@ -1,4 +1,4 @@
-# docker-compose.yml (Final Version with Volume Mount)
+# docker-compose.yml (Final Version with Healthcheck Dependency)
 
 services:
   app:
@@ -10,15 +10,16 @@ services:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     depends_on:
-      - db
+      db:
+        condition: service_healthy # <-- This is a key fix
+    restart: unless-stopped
     environment:
       - NODE_ENV=development
       - DB_HOST=db
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME}
-    restart: unless-stopped
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_PORT=5432
+      - DB_NAME=cartalex_basileia_3857
 
   db:
     image: postgis/postgis:13-3.1
@@ -26,9 +27,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=cartalex_basileia_3857
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db-init:/docker-entrypoint-initdb.d
@@ -45,12 +46,11 @@ services:
     ports:
       - "8080:8080"
     command: serve --config /etc/tegola/config.toml
-    # This line forces the container to use your local file, bypassing all caches.
     volumes:
       - ./tegola/tegola.toml:/etc/tegola/config.toml
     depends_on:
       db:
-        condition: service_healthy
+        condition: service_healthy # <-- This is a key fix
     restart: unless-stopped
 
 volumes:

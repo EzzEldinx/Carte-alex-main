@@ -1,4 +1,4 @@
-# tegola/tegola.toml — aligned to this project
+# tegola/tegola.toml — corrected syntax
 
 [webserver]
 port = ":8080"
