@@ -1,5 +1,3 @@
-# tegola/tegola.toml — corrected syntax
-
 [webserver]
 port = ":8080"
 
@@ -61,35 +59,23 @@ center = [29.9187, 31.2001, 10.0]
   [[maps.layers]]
   provider_layer = "postgis_provider.emprises_data"
   name = "emprises"
-  min_zoom = 0
-  max_zoom = 22
 
   [[maps.layers]]
   provider_layer = "postgis_provider.espaces_publics_data"
   name = "espaces_publics"
-  min_zoom = 0
-  max_zoom = 22
 
   [[maps.layers]]
   provider_layer = "postgis_provider.littoral_data"
   name = "littoral"
-  min_zoom = 0
-  max_zoom = 22
 
   [[maps.layers]]
   provider_layer = "postgis_provider.noms_rues_data"
   name = "noms_rues"
-  min_zoom = 0
-  max_zoom = 22
 
   [[maps.layers]]
   provider_layer = "postgis_provider.parcelles_region_data"
   name = "parcelles_region"
-  min_zoom = 0
-  max_zoom = 22
 
   [[maps.layers]]
   provider_layer = "postgis_provider.sites_fouilles_data"
   name = "sites_fouilles"
-  min_zoom = 0
-  max_zoom = 22

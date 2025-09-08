@@ -1,26 +1,6 @@
-# docker-compose.yml (Final Version with Healthcheck Dependency)
+# docker-compose.yml (Diagnostic Version - DB and Tegola only)
 
 services:
-  app:
-    build: .
-    container_name: cartalex_app
-    ports:
-      - "3000:3000"
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
-    depends_on:
-      db:
-        condition: service_healthy # <-- This is a key fix
-    restart: unless-stopped
-    environment:
-      - NODE_ENV=development
-      - DB_HOST=db
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_PORT=5432
-      - DB_NAME=cartalex_basileia_3857
-
   db:
     image: postgis/postgis:13-3.1
     container_name: cartalex_db
@@ -50,7 +30,7 @@ services:
       - ./tegola/tegola.toml:/etc/tegola/config.toml
     depends_on:
       db:
-        condition: service_healthy # <-- This is a key fix
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:

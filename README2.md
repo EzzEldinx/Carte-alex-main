@@ -1,5 +1,13 @@
 # Cartalex Project (Improved Version - Ezz Eldin)
 
+# how to launch : 
+# in 2 terminals : 
+# from project root
+1- docker build -t cartalex-app .
+docker run --rm -p 3000:3000 --name cartalex_app cartalex-app
+2- docker compose up -d tegola
+
+
 ## Overview
 
 Cartalex is a web-based GIS (WebSIG) platform for archaeological and historical data visualization and analysis. This improved version incorporates best practices in security, code structure, performance, accessibility, and maintainability for both backend and frontend.

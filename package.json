@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rm -rf dist && webpack --mode development --config webpack.server.config.js && webpack --mode development",
-    "start":"npm run build && node ./dist/server.js",
-    "type": "module"
-  },
+"scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "build": "rm -rf dist && webpack --mode development --config webpack.server.config.js && webpack --mode development",
+  "dev": "webpack --mode development --config webpack.server.config.js --watch & webpack --mode development --watch",
+  "start": "node ./dist/server.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
