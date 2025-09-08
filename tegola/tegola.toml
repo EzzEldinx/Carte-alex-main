@@ -16,6 +16,8 @@ uri = "postgres://postgres:postgres@db:5432/cartalex_basileia_3857"
   geometry_fieldname = "geom"
   id_fieldname = "fid"
   srid = 3857
+  dont_simplify = true
+  buffer = 64
 
   [[providers.layers]]
   name = "espaces_publics_data"
@@ -23,6 +25,8 @@ uri = "postgres://postgres:postgres@db:5432/cartalex_basileia_3857"
   geometry_fieldname = "geom"
   id_fieldname = "fid"
   srid = 3857
+  dont_simplify = true
+  buffer = 64
 
   [[providers.layers]]
   name = "littoral_data"
@@ -30,6 +34,8 @@ uri = "postgres://postgres:postgres@db:5432/cartalex_basileia_3857"
   geometry_fieldname = "geom"
   id_fieldname = "fid"
   srid = 3857
+  dont_simplify = true
+  buffer = 64
 
   [[providers.layers]]
   name = "noms_rues_data"
@@ -37,6 +43,8 @@ uri = "postgres://postgres:postgres@db:5432/cartalex_basileia_3857"
   geometry_fieldname = "geom"
   id_fieldname = "fid"
   srid = 3857
+  dont_simplify = true
+  buffer = 64
 
   [[providers.layers]]
   name = "parcelles_region_data"
@@ -44,6 +52,8 @@ uri = "postgres://postgres:postgres@db:5432/cartalex_basileia_3857"
   geometry_fieldname = "geom"
   id_fieldname = "fid"
   srid = 3857
+  dont_simplify = true
+  buffer = 64
 
   [[providers.layers]]
   name = "sites_fouilles_data"
@@ -51,6 +61,8 @@ uri = "postgres://postgres:postgres@db:5432/cartalex_basileia_3857"
   geometry_fieldname = "geom"
   id_fieldname = "fid"
   srid = 3857
+  dont_simplify = true
+  buffer = 64
 
 [[maps]]
 name = "cartalex"
