@@ -6,10 +6,9 @@ const HtmlWebPackPLugin = require('html-webpack-plugin');
 let htmlPageNames = ['index'];
 let multipleHtmlPlugins = htmlPageNames.map(name => {
   return new HtmlWebPackPLugin({
-    template: `./src/html/${name}.html`, // relative path to the HTML files
-    filename: `${name}.html`, // output HTML files
+    template: `./src/html/${name}.html`,
+    filename: `${name}.html`,
     excludeChunks: ["server", "main"]
-    ///chunks: [`${name}`] // respective JS files
   })
 });
 
@@ -31,7 +30,7 @@ module.exports = {
     module: {
         rules: [
             {
-                //Transpiles ES6-8 into ES5
+                // We need Babel back for the server build to succeed
                 test: /\.js$/,
                 exclude: /node_modules/,
                 use: {
@@ -39,15 +38,8 @@ module.exports = {
                 }
             },
             {
-                //Loads the javascript into html template provided
-                //Entry point is set below in HtmlWebPackPlugin in Plugins
                 test: /\.html$/,
-                use: [
-                    {
-                        loader: "html-loader",
-                        options: {minimize: true}
-                    }
-                ]
+                use: [ { loader: "html-loader", options: {minimize: true} } ]
             },
             {
                 test: /\.css$/,

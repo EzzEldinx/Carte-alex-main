@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-"scripts": {
-  "test": "echo \"Error: no test specified\" && exit 1",
-  "build": "rm -rf dist && webpack --mode development --config webpack.server.config.js && webpack --mode development",
-  "dev": "webpack --mode development --config webpack.server.config.js --watch & webpack --mode development --watch",
-  "start": "node ./dist/server.js"
-},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rm -rf dist && webpack --mode development --config webpack.server.config.js && webpack --mode development",
+    "start": "npm run build && node ./dist/server.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -19,6 +18,7 @@
     "express": "^4.19.2",
     "express-validator": "^7.2.1",
     "morgan": "^1.10.0",
+    "maplibre-gl": "^4.1.2",
     "node-cache": "^5.1.2",
     "swagger-ui-express": "^4.6.3",
     "yamljs": "^0.3.0"
@@ -34,9 +34,6 @@
     "html-loader": "^4.2.0",
     "html-webpack-plugin": "^5.5.3",
     "nodemon": "^2.0.22",
-    "ol": "^7.4.0",
-    "pg-promise": "^11.5.0",
-    "proj4": "^2.9.0",
     "sortablejs": "^1.15.0",
     "style-loader": "^3.3.3",
     "url-loader": "^4.1.1",
