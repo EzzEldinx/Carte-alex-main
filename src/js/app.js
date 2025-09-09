@@ -11,12 +11,8 @@ export class App {
 
   async initialize() {
     console.log('Initializing application...');
-    
-    // 1. Initialize filters and layers, which builds their respective UI elements.
     await this.initFilters();
     this.initLayerList();
-
-    // 2. NOW, attach all event listeners to the newly created UI.
     this.initEventListeners();
   }
 
@@ -33,12 +29,9 @@ export class App {
   }
 
   initEventListeners() {
-    // This single function now attaches all listeners for all UI elements.
     attachAllEventListeners(
       this.filterCollection.getFilters(),
-      // Callback for when a filter changes
       async () => { await this.updateMapFilter(); },
-      // Callback for when a layer visibility changes
       (layerId, isVisible) => { this.toggleLayerVisibility(layerId, isVisible); }
     );
   }
@@ -59,15 +52,20 @@ export class App {
       return;
     }
 
-    const filteredIds = await this.filterCollection.getFilteredIds();
-    
-    // Note: MapLibre's `in` filter was updated. The new syntax is more verbose.
+    const filteredIdsAsString = await this.filterCollection.getFilteredIds();
+    const filteredIds = filteredIdsAsString.map(id => Number(id));
+
     if (filteredIds && filteredIds.length > 0) {
-      const filter = ['in', ['get', 'fid'], ['literal', filteredIds]];
+      // ** START: THE FINAL FIX **
+      // Use the ['id'] expression to filter by the feature's top-level ID,
+      // which corresponds to the 'fid' column we set in Tegola.
+      const filter = ['in', ['id'], ['literal', filteredIds]];
+      // ** END: THE FINAL FIX **
+      
       this.map.setFilter('sites_fouilles-points', filter);
       console.log(`Filtered to ${filteredIds.length} sites.`);
     } else {
-      this.map.setFilter('sites_fouilles-points', ['in', ['get', 'fid'], '']);
+      this.map.setFilter('sites_fouilles-points', ['in', ['id'], '']);
       console.log('Filters are active but no sites matched.');
     }
   }

@@ -1,5 +1,4 @@
 import { Filter } from "./Filter";
-import { getShortest } from "./utils"
 
 export class FilterCollection {
     constructor(layerName, filters_config, api_at){
@@ -34,25 +33,34 @@ export class FilterCollection {
     }
 
     async getFilteredIds(){
-      let selected_features_by_filter = [];
-      if (this.getActiveFilters().length){
-        for (let filter of this.getActiveFilters()){
-          let selected_features = await filter.getSelectedFeatures(this.api_at, this.layerName);
-          console.log("Selected features from filter ", filter.name, " : ", selected_features);
-          selected_features_by_filter.push(selected_features);
-        }
-        let shortestSelection = getShortest(selected_features_by_filter);//Returns the array that contains the smaller number of features
-        console.log("Shortest selection : ", shortestSelection);
-        for (let selected_features of selected_features_by_filter.filter(array => array!=shortestSelection)){
-          console.log("Selected features : ", selected_features);
-          for (let id of shortestSelection){
-            if (!selected_features.includes(id)){
-              shortestSelection = shortestSelection.filter(array_id => array_id!=id);//Removes all the ids of the smallest selection if it is not selected by the others
-            }
-          }
-        }
-        return shortestSelection;
+      const activeFilters = this.getActiveFilters();
+      if (activeFilters.length === 0) {
+        return undefined; // Return undefined if no filters are active
       }
-    }
+
+      // Fetch results for all active filters in parallel
+      const resultsByFilter = await Promise.all(
+        activeFilters.map(filter => filter.getSelectedFeatures(this.api_at, this.layerName))
+      );
+
+      resultsByFilter.forEach((ids, index) => {
+        console.log(`Selected features from filter ${activeFilters[index].name} :`, ids);
+      });
+
+      if (resultsByFilter.length === 0) {
+          return [];
+      }
       
+      // ** START: CORRECTED INTERSECTION LOGIC **
+      // Use the 'reduce' method to find the intersection of all result arrays
+      const intersection = resultsByFilter.reduce((acc, currentArray) => {
+        // On the first iteration, acc is the first array.
+        // On subsequent iterations, acc is the intersection of the previous arrays.
+        return acc.filter(id => currentArray.includes(id));
+      });
+      // ** END: CORRECTED INTERSECTION LOGIC **
+
+      console.log("Final intersection of IDs:", intersection);
+      return intersection;
+    }
 }
