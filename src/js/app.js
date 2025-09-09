@@ -1,7 +1,7 @@
 import { FilterCollection } from './FilterCollection.js';
 import { filters_config } from './filters_config.js';
 import { server_config } from './server_config.js';
-import { buildFilterUI, addFilterEventListeners, buildLayerList, addLayerEventListeners } from './ui.js';
+import { buildFilterUI, buildLayerList, attachAllEventListeners } from './ui.js';
 
 export class App {
   constructor(map) {
@@ -11,9 +11,12 @@ export class App {
 
   async initialize() {
     console.log('Initializing application...');
-    // Initialize both UI components
+    
+    // 1. Initialize filters and layers, which builds their respective UI elements.
     await this.initFilters();
     this.initLayerList();
+
+    // 2. NOW, attach all event listeners to the newly created UI.
     this.initEventListeners();
   }
 
@@ -25,21 +28,19 @@ export class App {
   }
 
   initLayerList() {
-    // Get layers from the map's style that have a 'source' of 'cartalex'
     const cartalexLayers = this.map.getStyle().layers.filter(layer => layer.source === 'cartalex');
     buildLayerList(cartalexLayers);
   }
 
   initEventListeners() {
-    // Add event listeners for the top filter panel
-    addFilterEventListeners(async () => {
-      await this.updateMapFilter();
-    });
-
-    // Add event listeners for the left layer panel
-    addLayerEventListeners((layerId, isVisible) => {
-      this.toggleLayerVisibility(layerId, isVisible);
-    });
+    // This single function now attaches all listeners for all UI elements.
+    attachAllEventListeners(
+      this.filterCollection.getFilters(),
+      // Callback for when a filter changes
+      async () => { await this.updateMapFilter(); },
+      // Callback for when a layer visibility changes
+      (layerId, isVisible) => { this.toggleLayerVisibility(layerId, isVisible); }
+    );
   }
 
   toggleLayerVisibility(layerId, isVisible) {
@@ -60,6 +61,7 @@ export class App {
 
     const filteredIds = await this.filterCollection.getFilteredIds();
     
+    // Note: MapLibre's `in` filter was updated. The new syntax is more verbose.
     if (filteredIds && filteredIds.length > 0) {
       const filter = ['in', ['get', 'fid'], ['literal', filteredIds]];
       this.map.setFilter('sites_fouilles-points', filter);

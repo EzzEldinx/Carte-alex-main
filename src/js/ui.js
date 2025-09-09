@@ -2,9 +2,6 @@
  * This module handles the creation and event handling of all UI components.
  */
 
-let onFilterChangeCallback = () => {};
-let onLayerToggleCallback = () => {};
-
 /**
  * Builds the HTML for the top filter panel.
  */
@@ -57,7 +54,6 @@ export function buildLayerList(layers) {
 
     let html = '';
     layers.forEach(layer => {
-        // Use the source-layer as a more readable name
         const layerName = layer['source-layer'] || layer.id;
         html += `
             <li class="listitem">
@@ -70,9 +66,9 @@ export function buildLayerList(layers) {
 }
 
 /**
- * Attaches all necessary event listeners for UI interactions.
+ * Attaches all necessary event listeners for UI interactions after the UI is built.
  */
-function attachAllEventListeners(filters) {
+export function attachAllEventListeners(filters, onFilterChangeCallback, onLayerToggleCallback) {
   // --- Top Filter Panel Logic ---
   const voletHautClos = document.getElementById('volet_haut_clos');
   const voletHaut = document.getElementById('volet_haut');
@@ -136,19 +132,3 @@ function attachAllEventListeners(filters) {
       });
   });
 }
-
-export function addFilterEventListeners(callback) {
-  onFilterChangeCallback = callback;
-}
-
-export function addLayerEventListeners(callback) {
-  onLayerToggleCallback = callback;
-  // This is a good point to attach all listeners, since the DOM is ready.
-  // We need the filters object from the app to wire everything up.
-  // This is a bit of a workaround for the current structure.
-  // A better approach would be a more formal UI initialization class.
-  // We will call this from app.js after filters are ready.
-}
-
-// Re-exporting the main listener setup function
-export { attachAllEventListeners };
