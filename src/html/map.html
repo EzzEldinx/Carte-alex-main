@@ -5,10 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Cartalex - Interactive map interface for archaeological data visualization.">
     <title>Cartalex</title>
+    <link rel="icon" type="image/jpeg" href="../img/menu.jpg" />
   </head>
   <body>
-    <main id="main-content">
-      <div id="map"></div>
+    <a href="#main-content" class="skip-link" style="position:absolute;left:-999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:100;">Skip to main content</a>
+    <header role="banner">
+      <h1 style="position:absolute;left:-9999px;">Cartalex Map</h1>
+    </header>
+    <main id="main-content" tabindex="-1">
+      <div id="map" aria-label="Map display area"></div>
+      <div id="popup" class="ol-popup" role="dialog" aria-modal="true">
+        <a href="#" id="popup-closer" class="ol-popup-closer" aria-label="Close popup"></a>
+        <div id="popup-content"></div>
+      </div>
+      <div id="volet_haut_clos">
+        <div id="volet_haut">
+          <nav class="onglets_haut" aria-label="Top filters">
+            <a href="#volet_haut" class="ouvrir" aria-hidden="true">Filtres de requête</a>
+            <a href="#volet_haut_clos" class="fermer" aria-hidden="true">Fermer le volet</a>
+          </nav>
+        </div>
+      </div>
+
+      <div id="volet_gauche_clos">
+        <div id="volet_gauche">
+          <ul id="items" class="layerDragbox" aria-label="Layer selection"></ul>
+          <nav class="onglets_gauche" aria-label="Left panel">
+            <a href="#volet_gauche" class="ouvrir" aria-hidden="true">Choix des couches</a>
+            <a href="#volet_gauche_clos" class="fermer" aria-hidden="true">Fermer le volet</a>
+          </nav>
+        </div>
+      </div>
+
+      <div id="map-credits">
+        <ul>
+          <li id="project-credit"></li>
+        </ul>
+      </div>
     </main>
+    <footer role="contentinfo">
+      <span class="visually-hidden">End of map page</span>
+    </footer>
   </body>
 </html>

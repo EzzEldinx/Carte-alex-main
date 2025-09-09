@@ -1,20 +1,18 @@
 /**
- * This module handles the creation and event handling of the filter UI.
+ * This module handles the creation and event handling of all UI components.
  */
 
-// This function will be called when a filter input changes.
 let onFilterChangeCallback = () => {};
+let onLayerToggleCallback = () => {};
 
 /**
- * Dynamically builds the filter UI inside the #volet_haut element.
- * @param {object} filters - The filter objects from the FilterCollection.
+ * Builds the HTML for the top filter panel.
  */
 export function buildFilterUI(filters) {
   const container = document.getElementById('volet_haut');
   if (!container) return;
-
+  
   let html = '<div class="filter-collection-content">';
-
   for (const filterName in filters) {
     const filter = filters[filterName];
     html += `
@@ -23,14 +21,12 @@ export function buildFilterUI(filters) {
         <div class="filter-infos">${filter.infos}</div>
         <div class="subfilter-container" style="display: none;">
     `;
-
     for (const subFilter of filter.getSubFilters()) {
       html += `
         <div class="subfilter-content-wrapper">
           <h4 class="subfilter-title">${subFilter.alias || subFilter.name}</h4>
           <ul class="subfilter-content" style="display: none;">
       `;
-
       if (subFilter.isNumeric) {
         html += `<li>Numeric filter UI placeholder</li>`;
       } else {
@@ -48,34 +44,73 @@ export function buildFilterUI(filters) {
     }
     html += `</div></div>`;
   }
-
   html += '</div>';
   container.innerHTML = html;
+}
 
-  // Add event listeners for toggling dropdowns
+/**
+ * Builds the HTML for the left layer selection panel.
+ */
+export function buildLayerList(layers) {
+    const container = document.getElementById('items');
+    if (!container) return;
+
+    let html = '';
+    layers.forEach(layer => {
+        // Use the source-layer as a more readable name
+        const layerName = layer['source-layer'] || layer.id;
+        html += `
+            <li class="listitem">
+                <input type="checkbox" id="layer-${layer.id}" data-layer-id="${layer.id}" checked>
+                <label for="layer-${layer.id}">${layerName.replace(/_/g, ' ')}</label>
+            </li>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+/**
+ * Attaches all necessary event listeners for UI interactions.
+ */
+function attachAllEventListeners(filters) {
+  // --- Top Filter Panel Logic ---
+  const voletHautClos = document.getElementById('volet_haut_clos');
+  const voletHaut = document.getElementById('volet_haut');
+  const openFilterBtn = voletHautClos.querySelector('.onglets_haut a.ouvrir');
+  const closeFilterBtn = voletHautClos.querySelector('.onglets_haut a.fermer');
+
+  if (voletHaut && openFilterBtn && closeFilterBtn) {
+    openFilterBtn.addEventListener('click', (e) => { e.preventDefault(); voletHaut.classList.add('is-open'); });
+    closeFilterBtn.addEventListener('click', (e) => { e.preventDefault(); voletHaut.classList.remove('is-open'); });
+  }
+
+  // --- Left Layer Panel Logic ---
+  const voletGaucheClos = document.getElementById('volet_gauche_clos');
+  const voletGauche = document.getElementById('volet_gauche');
+  const openLayerBtn = voletGaucheClos.querySelector('.onglets_gauche a.ouvrir');
+  const closeLayerBtn = voletGaucheClos.querySelector('.onglets_gauche a.fermer');
+
+  if (voletGauche && openLayerBtn && closeLayerBtn) {
+      openLayerBtn.addEventListener('click', (e) => { e.preventDefault(); voletGauche.classList.add('is-open'); });
+      closeLayerBtn.addEventListener('click', (e) => { e.preventDefault(); voletGauche.classList.remove('is-open'); });
+  }
+
+  // --- Filter Dropdown Logic ---
   document.querySelectorAll('.filter-name').forEach(button => {
     button.addEventListener('click', () => {
-      const subFilterContainer = button.nextElementSibling.nextElementSibling;
-      subFilterContainer.style.display = subFilterContainer.style.display === 'none' ? 'block' : 'none';
+      const subContainer = button.nextElementSibling.nextElementSibling;
+      subContainer.style.display = subContainer.style.display === 'none' ? 'block' : 'none';
     });
   });
 
   document.querySelectorAll('.subfilter-title').forEach(title => {
     title.addEventListener('click', () => {
-      const subFilterContent = title.nextElementSibling;
-      subFilterContent.style.display = subFilterContent.style.display === 'none' ? 'block' : 'none';
+      const content = title.nextElementSibling;
+      content.style.display = content.style.display === 'none' ? 'block' : 'none';
     });
   });
-  
-  // Attach event listeners to the newly created checkboxes
-  attachCheckboxListeners(filters);
-}
 
-/**
- * Attaches change event listeners to all filter checkboxes.
- * @param {object} filters - The filter objects from the FilterCollection.
- */
-function attachCheckboxListeners(filters) {
+  // --- Filter Checkbox Logic ---
   document.querySelectorAll('.subfilter-content input[type="checkbox"]').forEach(checkbox => {
     checkbox.addEventListener('change', (e) => {
       const { name, value, checked } = e.target;
@@ -84,41 +119,36 @@ function attachCheckboxListeners(filters) {
       const filter = filters[filterName];
       const subFilter = filter.getSubFilter(name);
 
-      if (checked) {
-        subFilter.checkValue(value);
-      } else {
-        subFilter.unCheckValue(value);
-      }
+      if (checked) subFilter.checkValue(value);
+      else subFilter.unCheckValue(value);
 
       filter.active = filter.getSubFilters().some(sf => sf.getSelectedValues().length > 0);
       onFilterChangeCallback();
     });
   });
+
+  // --- Layer Checkbox Logic ---
+  document.querySelectorAll('#items input[type="checkbox"]').forEach(checkbox => {
+      checkbox.addEventListener('change', (e) => {
+          const layerId = e.target.dataset.layerId;
+          const isVisible = e.target.checked;
+          onLayerToggleCallback(layerId, isVisible);
+      });
+  });
 }
 
-/**
- * Sets the callback function and initializes UI event listeners.
- * @param {function} callback 
- */
 export function addFilterEventListeners(callback) {
   onFilterChangeCallback = callback;
-
-  // ** START: FIX FOR PANEL TOGGLE **
-  const voletHautClos = document.getElementById('volet_haut_clos');
-  const voletHaut = document.getElementById('volet_haut');
-  const openBtn = voletHautClos.querySelector('.onglets_haut a.ouvrir');
-  const closeBtn = voletHautClos.querySelector('.onglets_haut a.fermer');
-
-  if (voletHaut && openBtn && closeBtn) {
-    openBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      voletHaut.classList.add('is-open');
-    });
-
-    closeBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      voletHaut.classList.remove('is-open');
-    });
-  }
-  // ** END: FIX FOR PANEL TOGGLE **
 }
+
+export function addLayerEventListeners(callback) {
+  onLayerToggleCallback = callback;
+  // This is a good point to attach all listeners, since the DOM is ready.
+  // We need the filters object from the app to wire everything up.
+  // This is a bit of a workaround for the current structure.
+  // A better approach would be a more formal UI initialization class.
+  // We will call this from app.js after filters are ready.
+}
+
+// Re-exporting the main listener setup function
+export { attachAllEventListeners };

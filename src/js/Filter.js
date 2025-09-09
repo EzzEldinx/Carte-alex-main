@@ -20,10 +20,6 @@ export class Filter {
         this.sub_filters.push(subFilter);
     }
 
-    setSubFilters(sub_filters){
-        this.sub_filters = sub_filters;
-    }
-
     getSubFilters(){
         return this.sub_filters;
     }
@@ -33,7 +29,8 @@ export class Filter {
     }
 
     getActiveSubFilters(){
-        return this.sub_filters.filter(sub_filter => sub_filter.active == true);
+        // A subfilter is active if it has at least one selected value.
+        return this.sub_filters.filter(sub_filter => sub_filter.getSelectedValues().length > 0);
     }
 
     getInfos(){
@@ -50,7 +47,7 @@ export class Filter {
                 requestApiUrl += `&${subfilter.name}.floor=${subfilter.request_options.floor}|${subfilter.getFloor()}&${subfilter.name}.ceil=${subfilter.request_options.ceil}|${subfilter.getCeil()}`
             }
         }
-        console.log("Selection request to send", requestApiUrl);
+        console.log("Selection request to send:", requestApiUrl);
         let request_result = await fetch(requestApiUrl);
         let json_result = await request_result.json();
         for (let feature of json_result){
@@ -58,5 +55,4 @@ export class Filter {
         }
         return selected_features;
     }
-
 }

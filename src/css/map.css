@@ -1,36 +1,20 @@
 /* =====================
    Cartalex Map CSS
    ===================== */
-
    :root {
     --primary-bg: #f0de6b;
     --primary-border: #b8a186;
     --primary-text: rgba(18, 97, 130, 0.9);
     --accent: rgba(149, 116, 75, 0.9);
     --white: #fff;
-    --focus-outline: 2px solid #005fcc;
   }
   
-  /* ========== Global Reset & Base ========== */
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: sans-serif;
-    font-size: 0.95rem;
-  }
   html, body {
     margin: 0;
     height: 100%;
-    background: var(--white);
-    color: var(--primary-text);
+    font-family: sans-serif;
   }
   
-  h1, h2 {
-    font-weight: normal;
-  }
-  
-  /* ========== Map Container ========== */
   #map {
     position: absolute;
     top: 0;
@@ -38,137 +22,89 @@
     width: 100%;
   }
   
-  /* ========== Panels & Volets ========== */
+  /* ========== Panels & Volets General ========== */
+  .onglets_haut, .onglets_gauche { cursor: pointer; user-select: none; }
+  .onglets_haut a, .onglets_gauche a { text-decoration: none; color: white; padding: 8px 12px; display: inline-block; }
+  
+  /* ========== Top Panel (Filters) ========== */
   #volet_haut_clos {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 10; /* Ensure it's above the map */
+    z-index: 10;
   }
   #volet_haut {
     position: absolute;
-    transform: translateY(-100%); /* Start hidden */
+    transform: translateY(-100%);
     top: 0;
     left: 0;
     width: 100%;
-    color: var(--white);
-    text-align: center;
     transition: transform .3s ease-in-out;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    background: var(--accent); /* Give it a background */
+    background: var(--accent);
     padding: 10px;
+    border-bottom: 2px solid var(--primary-border);
   }
-  #volet_haut_clos .onglets_haut {
+  #volet_haut.is-open { transform: translateY(0); }
+  .onglets_haut {
     position: absolute;
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    padding: 0.3rem 0;
     background: var(--accent);
     border-radius: 0 0 8px 8px;
-    cursor: pointer;
   }
-  #volet_haut_clos .onglets_haut:hover {
-    background-color: #319583;
-  }
-  #volet_haut_clos a.ouvrir,
-  #volet_haut_clos a.fermer {
-    text-decoration: none;
-    color: var(--white);
-    padding: 5px 15px;
-    display: inline-block;
-  }
-  #volet_haut_clos a.fermer { display: none; }
-  #volet_haut_clos a.ouvrir:after { content: ' ▼'; }
-  #volet_haut_clos a.fermer:after { content: ' ▲'; }
+  .onglets_haut .fermer { display: none; }
+  #volet_haut.is-open ~ .onglets_haut .ouvrir { display: none; }
+  #volet_haut.is-open ~ .onglets_haut .fermer { display: inline-block; }
   
-  /* ** START: FIX FOR PANEL TOGGLE ** */
-  #volet_haut.is-open { transform: translateY(0); }
-  
-  #volet_haut ~ .onglets_haut a.ouvrir { display: none; }
-  #volet_haut ~ .onglets_haut a.fermer { display: inline-block; }
-  /* ** END: FIX FOR PANEL TOGGLE ** */
-  
-  
-  /* Other styles are unchanged */
-  /* ========== Dropdowns & Filters ========== */
-  .filter-collection-content {
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
+  /* ========== Left Panel (Layers) ========== */
+  #volet_gauche_clos {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 10;
   }
-  .filter-content {
-    position: relative;
-    display: inline-block;
-    border: none;
-    padding-top: 0.5rem;
-    margin: 0 1rem;
-    width: 100%;
-    max-width: 300px; /* Limit width of filter columns */
-  }
-  .filter-infos {
-    display: none;
-    background-color: var(--primary-bg);
-    color: black;
+  #volet_gauche {
     position: absolute;
-    text-align: left;
-    padding: 0.2em;
-    z-index: 20;
+    transform: translateX(-100%);
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 250px;
+    background: var(--accent);
+    transition: transform 0.3s ease-in-out;
+    padding: 1rem;
+    border-right: 2px solid var(--primary-border);
   }
-  .filter-name:hover + .filter-infos {
-    display: flex;
+  #volet_gauche.is-open { transform: translateX(0); }
+  .onglets_gauche {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--accent);
+    border-radius: 0 8px 8px 0;
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
   }
-  .subfilter-container {
-    background-color: var(--white);
-    padding: 10px;
-    border: 1px solid var(--primary-border);
-    margin-top: 5px;
-    border-radius: 4px;
-  }
-  .subfilter-content {
-    list-style-type: none;
-    text-align: left;
-    padding-left: 0;
-    background-color: white;
-    max-height: 20vh;
-    overflow-y: auto;
-  }
-  .subfilter-content li {
-    padding-bottom: 0.2rem;
-    text-transform: capitalize;
-  }
-  .subfilter-content label, input {
-    margin-left: 0.5rem;
-    color: var(--primary-text);
-  }
+  .onglets_gauche .fermer { display: none; }
+  #volet_gauche.is-open ~ .onglets_gauche .ouvrir { display: none; }
+  #volet_gauche.is-open ~ .onglets_gauche .fermer { display: inline-block; }
   
+  /* ========== Filter UI Styles ========== */
+  .filter-collection-content { display: flex; justify-content: center; width: 100%; }
+  .filter-content { margin: 0 1rem; width: 100%; max-width: 280px; }
   .filter-name {
-    display: block;
-    color: var(--white);
-    border: solid 0.1rem var(--primary-border);
-    padding: 0.5rem;
-    width: 100%;
-    cursor: pointer;
-    background-color: var(--primary-text);
-    text-align: center;
-    border-radius: 4px;
+      display: block; color: var(--white); border: none; padding: 0.5rem; width: 100%; cursor: pointer;
+      background-color: var(--primary-text); text-align: center; border-radius: 4px;
   }
+  .subfilter-container { background-color: var(--white); padding: 10px; border: 1px solid var(--primary-border); margin-top: 5px; border-radius: 4px; }
+  .subfilter-title { cursor: pointer; padding: 8px; background-color: #f0f0f0; border: 1px solid #ccc; margin-top: 5px; border-radius: 4px; color: var(--primary-text); }
+  .subfilter-content { list-style-type: none; text-align: left; padding-left: 0; background-color: white; max-height: 150px; overflow-y: auto; }
+  .subfilter-content label { color: var(--primary-text); }
   
-  .subfilter-title {
-    cursor: pointer;
-    padding: 8px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    margin-top: 5px;
-    border-radius: 4px;
-    color: var(--primary-text);
-  }
-  
-  /* ========== Accessibility: Focus States ========== */
-  a:focus, button:focus, input:focus, .filter-name:focus {
-    outline: var(--focus-outline);
-    outline-offset: 2px;
-  }
+  /* ========== Layer List UI Styles ========== */
+  .layerDragbox { list-style-type: none; padding: 0; }
+  .listitem { background: rgba(0,0,0,0.2); color: white; padding: 8px; margin-bottom: 5px; border-radius: 4px; text-transform: capitalize; }
