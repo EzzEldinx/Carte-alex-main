@@ -31,20 +31,20 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # ** START: NEW RASTER TILE SERVER SERVICE **
   raster-server:
-    image: davenquinn/terracotta
+    build:
+      context: .
+      dockerfile: Dockerfile.raster
+    image: cartalex-raster:latest
     container_name: cartalex_raster_server
     ports:
       - "5001:5001"
-    command: terracotta -c /app/config.py connect
     volumes:
       - ./config.py:/app/config.py
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
-  # ** END: NEW RASTER TILE SERVER SERVICE **
 
   app:
     build: .

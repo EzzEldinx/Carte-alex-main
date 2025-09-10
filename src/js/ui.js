@@ -1,10 +1,4 @@
-/**
- * This module handles the creation and event handling of all UI components.
- */
-
-/**
- * Builds the HTML for the top filter panel.
- */
+// ... (buildFilterUI function is unchanged) ...
 export function buildFilterUI(filters) {
   const container = document.getElementById('volet_haut');
   if (!container) return;
@@ -45,36 +39,43 @@ export function buildFilterUI(filters) {
   container.innerHTML = html;
 }
 
-/**
- * Builds the HTML for the left layer selection panel.
- */
-export function buildLayerList(layers) {
+
+// ** START: LOGIC UPDATE **
+// The function now takes the map object to check the initial visibility of each layer
+export function buildLayerList(layers, map) {
     const container = document.getElementById('items');
     if (!container) return;
 
     let html = '';
     layers.forEach(layer => {
-        const layerName = layer['source-layer'] || layer.id;
+        // Use the layer ID as a more readable name, and handle different source types
+        let layerName = layer.id.replace(/-/g, ' ');
+        if (layer.source === 'cartalex') {
+            layerName = layer['source-layer'].replace(/_/g, ' ');
+        }
+
+        // Check the layer's current visibility to set the checkbox state
+        const isVisible = map.getLayoutProperty(layer.id, 'visibility') !== 'none';
+        const checkedAttribute = isVisible ? 'checked' : '';
+
         html += `
             <li class="listitem">
-                <input type="checkbox" id="layer-${layer.id}" data-layer-id="${layer.id}" checked>
-                <label for="layer-${layer.id}">${layerName.replace(/_/g, ' ')}</label>
+                <input type="checkbox" id="layer-${layer.id}" data-layer-id="${layer.id}" ${checkedAttribute}>
+                <label for="layer-${layer.id}">${layerName}</label>
             </li>
         `;
     });
     container.innerHTML = html;
 }
+// ** END: LOGIC UPDATE **
 
-/**
- * Attaches all necessary event listeners for UI interactions after the UI is built.
- */
+// ... (attachAllEventListeners function is unchanged) ...
 export function attachAllEventListeners(filters, onFilterChangeCallback, onLayerToggleCallback) {
   // --- Top Filter Panel Logic ---
   const voletHautClos = document.getElementById('volet_haut_clos');
   const voletHaut = document.getElementById('volet_haut');
   const openFilterBtn = voletHautClos.querySelector('.onglets_haut a.ouvrir');
   const closeFilterBtn = voletHautClos.querySelector('.onglets_haut a.fermer');
-
   if (voletHaut && openFilterBtn && closeFilterBtn) {
     openFilterBtn.addEventListener('click', (e) => { e.preventDefault(); voletHaut.classList.add('is-open'); });
     closeFilterBtn.addEventListener('click', (e) => { e.preventDefault(); voletHaut.classList.remove('is-open'); });
@@ -85,7 +86,6 @@ export function attachAllEventListeners(filters, onFilterChangeCallback, onLayer
   const voletGauche = document.getElementById('volet_gauche');
   const openLayerBtn = voletGaucheClos.querySelector('.onglets_gauche a.ouvrir');
   const closeLayerBtn = voletGaucheClos.querySelector('.onglets_gauche a.fermer');
-
   if (voletGauche && openLayerBtn && closeLayerBtn) {
       openLayerBtn.addEventListener('click', (e) => { e.preventDefault(); voletGauche.classList.add('is-open'); });
       closeLayerBtn.addEventListener('click', (e) => { e.preventDefault(); voletGauche.classList.remove('is-open'); });
@@ -98,7 +98,6 @@ export function attachAllEventListeners(filters, onFilterChangeCallback, onLayer
       subContainer.style.display = subContainer.style.display === 'none' ? 'block' : 'none';
     });
   });
-
   document.querySelectorAll('.subfilter-title').forEach(title => {
     title.addEventListener('click', () => {
       const content = title.nextElementSibling;
@@ -111,13 +110,10 @@ export function attachAllEventListeners(filters, onFilterChangeCallback, onLayer
     checkbox.addEventListener('change', (e) => {
       const { name, value, checked } = e.target;
       const filterName = e.target.closest('.filter-content').querySelector('.filter-name').textContent.toLowerCase();
-      
       const filter = filters[filterName];
       const subFilter = filter.getSubFilter(name);
-
       if (checked) subFilter.checkValue(value);
       else subFilter.unCheckValue(value);
-
       filter.active = filter.getSubFilters().some(sf => sf.getSelectedValues().length > 0);
       onFilterChangeCallback();
     });

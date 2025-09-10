@@ -1,0 +1,29 @@
+FROM python:3.11-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gdal-bin \
+    libgdal-dev \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Environment to help rasterio/fiona find GDAL
+ENV GDAL_DATA=/usr/share/gdal/ \
+    PROJ_LIB=/usr/share/proj \
+    CPLUS_INCLUDE_PATH=/usr/include/gdal \
+    C_INCLUDE_PATH=/usr/include/gdal
+
+WORKDIR /app
+
+# Install Terracotta with PostgreSQL driver
+RUN pip install --no-cache-dir terracotta[postgresql]
+
+# Copy config file only (compose will mount it too; copying allows image to run standalone)
+COPY config.py /app/config.py
+
+EXPOSE 5001
+
+# Default command: run terracotta and bind on all interfaces, port 5001
+CMD ["terracotta", "-c", "/app/config.py", "connect", "--host", "0.0.0.0", "--port", "5001"]
+
+
