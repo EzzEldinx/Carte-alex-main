@@ -108,3 +108,40 @@
   /* ========== Layer List UI Styles ========== */
   .layerDragbox { list-style-type: none; padding: 0; }
   .listitem { background: rgba(0,0,0,0.2); color: white; padding: 8px; margin-bottom: 5px; border-radius: 4px; text-transform: capitalize; }
+  /* ... (all previous styles remain the same) ... */
+
+/* ** START: NEW POPUP STYLES ** */
+.maplibregl-popup-content {
+  background: var(--primary-bg);
+  color: #333;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid var(--primary-border);
+  font-family: sans-serif;
+  max-width: 300px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.site-popup h4 {
+  margin: 0 0 10px;
+  color: var(--primary-text);
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+.site-popup strong {
+  color: var(--primary-text);
+  display: block;
+  margin-top: 10px;
+}
+
+.site-popup ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin: 5px 0 0;
+}
+
+.site-popup li {
+  margin-bottom: 3px;
+}
+/* ** END: NEW POPUP STYLES ** */
