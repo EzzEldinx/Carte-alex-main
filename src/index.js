@@ -3,7 +3,6 @@ import './css/map.css';
 import maplibregl from 'maplibre-gl';
 import { App } from './js/app.js';
 
-// --- 1. CREATE THE MAP ---
 const map = new maplibregl.Map({
     container: 'map',
     style: {
@@ -15,6 +14,14 @@ const map = new maplibregl.Map({
                 tileSize: 256,
                 attribution: '&copy; OpenStreetMap Contributors',
             },
+            // ** START: NEW SATELLITE SOURCE **
+            satellite: {
+                type: 'raster',
+                tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+                tileSize: 256,
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            },
+            // ** END: NEW SATELLITE SOURCE **
             cartalex: {
                 type: 'vector',
                 tiles: ['http://localhost:8080/maps/cartalex/{z}/{x}/{y}.pbf'],
@@ -23,7 +30,21 @@ const map = new maplibregl.Map({
             }
         },
         layers: [
-            { id: 'osm-background', type: 'raster', source: 'osm' },
+            // ** START: LAYER CHANGES **
+            // We now have two base layers. We will make one hidden by default.
+            { 
+                id: 'osm-background', 
+                type: 'raster', 
+                source: 'osm',
+                layout: { 'visibility': 'visible' } // This one is visible by default
+            },
+            { 
+                id: 'satellite-background', 
+                type: 'raster', 
+                source: 'satellite',
+                layout: { 'visibility': 'none' } // This one is hidden by default
+            },
+            // ** END: LAYER CHANGES **
             { id: 'parcelles_region-fill', type: 'fill', source: 'cartalex', 'source-layer': 'parcelles_region', paint: { 'fill-color': 'rgba(128, 0, 128, 0.4)' } },
             { id: 'espaces_publics-fill', type: 'fill', source: 'cartalex', 'source-layer': 'espaces_publics', paint: { 'fill-color': 'rgba(128, 0, 128, 0.4)' } },
             { id: 'emprises-fill', type: 'fill', source: 'cartalex', 'source-layer': 'emprises', paint: { 'fill-color': 'rgba(128, 0, 128, 0.4)' } },
@@ -38,7 +59,6 @@ const map = new maplibregl.Map({
 
 map.addControl(new maplibregl.NavigationControl());
 
-// --- 2. INITIALIZE THE APPLICATION LOGIC ---
 map.on('load', () => {
   const app = new App(map);
   app.initialize();

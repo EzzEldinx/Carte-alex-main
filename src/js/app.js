@@ -16,10 +16,7 @@ export class App {
     await this.initFilters();
     this.initLayerList();
     this.initEventListeners();
-
-    // ** START: NEW POPUP LOGIC **
     this.initMapClickListener();
-    // ** END: NEW POPUP LOGIC **
   }
 
   async initFilters() {
@@ -30,10 +27,14 @@ export class App {
   }
 
   initLayerList() {
-    const cartalexLayers = this.map.getStyle().layers.filter(layer => layer.source === 'cartalex');
-    buildLayerList(cartalexLayers);
+    // ** START: LOGIC UPDATE **
+    // Get ALL layers from the map's style, not just the ones from Tegola.
+    const allLayers = this.map.getStyle().layers;
+    buildLayerList(allLayers, this.map);
+    // ** END: LOGIC UPDATE **
   }
-
+  
+  // ... (the rest of the file is unchanged) ...
   initEventListeners() {
     attachAllEventListeners(
       this.filterCollection.getFilters(),
@@ -42,77 +43,40 @@ export class App {
     );
   }
 
-  // ** START: NEW METHODS FOR POPUP **
   initMapClickListener() {
     this.map.on('click', 'sites_fouilles-points', (e) => {
-      // If a popup already exists, remove it
-      if (this.popup) {
-        this.popup.remove();
-      }
-      
+      if (this.popup) { this.popup.remove(); }
       const feature = e.features[0];
       const coordinates = feature.geometry.coordinates.slice();
-      const fid = feature.id; // The 'id' here is the 'fid' from the vector tile
-
-      // Ensure the popup appears over the point
+      const fid = feature.id;
       while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
       }
-      
       this.showPopupForSite(fid, coordinates);
     });
-
-    // Change the cursor to a pointer when the mouse is over the points layer.
-    this.map.on('mouseenter', 'sites_fouilles-points', () => {
-      this.map.getCanvas().style.cursor = 'pointer';
-    });
-
-    // Change it back to a pointer when it leaves.
-    this.map.on('mouseleave', 'sites_fouilles-points', () => {
-      this.map.getCanvas().style.cursor = '';
-    });
+    this.map.on('mouseenter', 'sites_fouilles-points', () => { this.map.getCanvas().style.cursor = 'pointer'; });
+    this.map.on('mouseleave', 'sites_fouilles-points', () => { this.map.getCanvas().style.cursor = ''; });
   }
 
   async showPopupForSite(fid, coordinates) {
-    // Fetch the detailed data from our new API endpoint
     const response = await fetch(`${server_config.api_at}/sitesFouilles/${fid}/details`);
-    if (!response.ok) {
-        console.error("Failed to fetch site details");
-        return;
-    }
+    if (!response.ok) { console.error("Failed to fetch site details"); return; }
     const data = await response.json();
-
-    // Build the HTML for the popup content
-    let html = `<div class="site-popup">`;
-    html += `<h4>Num Tkaczow: ${data.details.num_tkaczow}</h4>`;
-    if (data.details.commentaire) {
-      html += `<p>${data.details.commentaire}</p>`;
-    }
-
+    let html = `<div class="site-popup"><h4>Num Tkaczow: ${data.details.num_tkaczow}</h4>`;
+    if (data.details.commentaire) { html += `<p>${data.details.commentaire}</p>`; }
     if (data.vestiges.length > 0) {
       html += `<strong>Vestiges:</strong><ul>`;
-      data.vestiges.forEach(v => {
-        html += `<li>${v.caracterisation} (${v.periode || 'N/A'})</li>`;
-      });
+      data.vestiges.forEach(v => { html += `<li>${v.caracterisation} (${v.periode || 'N/A'})</li>`; });
       html += `</ul>`;
     }
-
     if (data.bibliographies.length > 0) {
       html += `<strong>Bibliographie:</strong><ul>`;
-      data.bibliographies.forEach(b => {
-        html += `<li>${b.nom_document}</li>`;
-      });
+      data.bibliographies.forEach(b => { html += `<li>${b.nom_document}</li>`; });
       html += `</ul>`;
     }
     html += `</div>`;
-
-    // Create and display the popup
-    this.popup = new maplibregl.Popup()
-      .setLngLat(coordinates)
-      .setHTML(html)
-      .addTo(this.map);
+    this.popup = new maplibregl.Popup().setLngLat(coordinates).setHTML(html).addTo(this.map);
   }
-  // ** END: NEW METHODS FOR POPUP **
 
   toggleLayerVisibility(layerId, isVisible) {
     const visibility = isVisible ? 'visible' : 'none';
@@ -121,15 +85,12 @@ export class App {
 
   async updateMapFilter() {
     const activeFilters = this.filterCollection.getActiveFilters();
-
     if (activeFilters.length === 0) {
       this.map.setFilter('sites_fouilles-points', null);
       return;
     }
-
     const filteredIdsAsString = await this.filterCollection.getFilteredIds();
     const filteredIds = filteredIdsAsString.map(id => Number(id));
-
     if (filteredIds && filteredIds.length > 0) {
       const filter = ['in', ['id'], ['literal', filteredIds]];
       this.map.setFilter('sites_fouilles-points', filter);
