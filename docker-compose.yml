@@ -31,6 +31,21 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  # ** START: NEW RASTER TILE SERVER SERVICE **
+  raster-server:
+    image: davenquinn/terracotta
+    container_name: cartalex_raster_server
+    ports:
+      - "5001:5001"
+    command: terracotta -c /app/config.py connect
+    volumes:
+      - ./config.py:/app/config.py
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+  # ** END: NEW RASTER TILE SERVER SERVICE **
+
   app:
     build: .
     container_name: cartalex_app
@@ -44,8 +59,8 @@ services:
       - DB_NAME=cartalex_basileia_3857
       - CORS_ORIGIN=http://localhost:3000
     depends_on:
-      db:
-        condition: service_healthy
+      - db
+      - tegola
     restart: unless-stopped
 
 volumes:
